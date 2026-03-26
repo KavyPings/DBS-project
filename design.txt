@@ -1,0 +1,266 @@
+# 🎨 UI/UX Design Document
+
+## Mini Course Management System
+
+---
+
+## 1. 📌 Design Overview
+
+The system UI is inspired by modern educational dashboards (like Educo Teacher Dashboard), focusing on a clean, minimal, and card-based layout. The design prioritizes usability, clarity, and efficient access to academic information.
+
+The interface follows a **dashboard-centric approach**, allowing users (students and instructors) to manage tasks, view data, and interact with the system seamlessly.
+
+---
+
+## 2. 🧭 Design Goals
+
+* Provide a **simple and intuitive interface**
+* Enable **quick access to key features**
+* Maintain **visual consistency**
+* Ensure **clear data representation**
+* Support both **student and instructor workflows**
+
+---
+
+## 3. 🧱 Layout Structure
+
+### 3.1 Overall Layout
+
+The application follows a **3-part layout**:
+
+1. **Sidebar Navigation (Left Panel)**
+2. **Main Dashboard Area (Center)**
+3. **Top Navigation Bar (Header)**
+
+---
+
+### 3.2 Sidebar Navigation
+
+Contains primary navigation options:
+
+* Dashboard
+* Courses
+* Assignments
+* Submissions
+* Grades
+* Discussion
+
+📌 Design Features:
+
+* Vertical menu
+* Icons + labels
+* Highlight active section
+* Collapsible option (optional)
+
+---
+
+### 3.3 Top Navigation Bar
+
+Includes:
+
+* User profile
+* Notifications
+* Search bar
+
+📌 Purpose:
+
+* Quick access to personal info and alerts
+
+---
+
+### 3.4 Main Dashboard Area
+
+The central workspace includes:
+
+#### 📊 Dashboard Cards:
+
+* Total Courses
+* Pending Assignments
+* Submitted Assignments
+* Average Grades
+
+#### 📈 Analytics Section:
+
+* Assignment completion trends
+* Student performance charts
+
+#### 📋 Recent Activity:
+
+* Latest submissions
+* Recent grades
+* New discussion messages
+
+---
+
+## 4. 👥 User Interface Design
+
+---
+
+### 🎓 Student Interface
+
+#### Features:
+
+* View enrolled courses (cards layout)
+* View assignments with deadlines
+* Submit assignments
+* View grades and feedback
+* Participate in discussions
+
+#### UI Elements:
+
+* Course cards
+* Assignment list view
+* Grade table
+* Discussion panel
+
+---
+
+### 👨‍🏫 Instructor Interface
+
+#### Features:
+
+* Create/manage courses
+* Add assignments
+* View submissions
+* Assign grades
+* Monitor student performance
+
+#### UI Elements:
+
+* Course management dashboard
+* Submission table
+* Grading panel
+* Analytics charts
+
+---
+
+## 5. 🧩 Key Screens
+
+---
+
+### 🏠 Dashboard Screen
+
+* Overview cards
+* Performance charts
+* Notifications
+
+---
+
+### 📚 Course Page
+
+* List of courses
+* Course details
+* Enrolled students
+
+---
+
+### 📝 Assignment Page
+
+* Assignment list
+* Deadline indicators
+* Submission status
+
+---
+
+### 📤 Submission Page
+
+* Student submissions
+* File/status tracking
+
+---
+
+### 📊 Grades Page
+
+* Marks table
+* Feedback display
+
+---
+
+### 💬 Discussion Page
+
+* Thread-based communication
+* Messages between students and instructors
+
+---
+
+## 6. 🎨 Design Components
+
+---
+
+### 6.1 Color Scheme
+
+* Primary: Blue (professional, academic feel)
+* Secondary: Light grey / white
+* Accent: Soft pastel highlights
+
+---
+
+### 6.2 Typography
+
+* Clean sans-serif font
+* Clear hierarchy:
+
+  * Headings → Bold
+  * Body → Regular
+
+---
+
+### 6.3 UI Elements
+
+* Cards with rounded corners
+* Buttons with hover effects
+* Tables for structured data
+* Icons for navigation
+
+---
+
+## 7. 🔄 Navigation Flow
+
+### Student Flow:
+
+Dashboard → Courses → Assignments → Submission → Grades
+
+### Instructor Flow:
+
+Dashboard → Courses → Assignments → Submissions → Grading
+
+---
+
+## 8. 📱 Responsiveness (Optional)
+
+* Desktop-first design
+* Scalable layout for smaller screens
+
+---
+
+## 9. 🧠 Usability Principles
+
+* Minimal clicks to access features
+* Clear labeling of actions
+* Consistent layout across pages
+* Visual feedback (success/error messages)
+
+---
+
+## 10. 🛠️ Implementation Approach
+
+* UI implemented using Java GUI / simple frontend
+* Backend connected using SQL database
+* Screenshots included in report
+
+---
+
+## 11. 🚀 Future UI Enhancements
+
+* Dark mode
+* Real-time notifications
+* Interactive charts
+* Mobile-friendly UI
+
+---
+
+## 12. 📌 Conclusion
+
+The UI design ensures a structured and user-friendly experience, enabling both students and instructors to efficiently manage academic activities. The dashboard-based design enhances accessibility and aligns with modern educational platforms.
+
+---

@@ -1,0 +1,201 @@
+# 📘 Product Requirement Document (PRD)
+
+## Mini Course Management System
+
+---
+
+## 1. 📌 Project Title
+
+**Design and Implementation of a Mini Course Management System**
+
+---
+
+## 2. 👥 Team Members
+
+* Aarjica Talati
+* Ruchi Pawar
+* Kavy Khilrani
+
+---
+
+## 3. 🎯 Objective
+
+To design and implement a database-driven system that efficiently manages academic activities such as course registration, assignment handling, grading, and student–faculty communication using SQL-based relational database techniques.
+
+---
+
+## 4. 🧩 Problem Statement
+
+Traditional methods of managing course-related activities such as assignments, grading, and feedback are often fragmented and inefficient. There is a need for a centralized system that allows students and instructors to interact, manage coursework, and maintain academic records in a structured and organized manner.
+
+---
+
+## 5. 🌍 Scope of the System
+
+### ✔ Included:
+
+* Student registration and course enrollment
+* Assignment creation and management
+* Assignment submission tracking
+* Grade entry and updates by instructors
+* Feedback and discussion system
+* Structured storage of academic data
+
+### ❌ Not Included:
+
+* Real-time chat system
+* Advanced authentication/security mechanisms
+* Mobile application support
+* Integration with external platforms
+
+---
+
+## 6. 👤 User Roles
+
+### 🎓 Student
+
+* Register and enroll in courses
+* View assignments
+* Submit assignments
+* View grades and feedback
+* Participate in discussions
+
+### 👨‍🏫 Instructor
+
+* Create and manage courses
+* Add assignments
+* Evaluate submissions
+* Assign grades
+* Provide feedback
+* Participate in discussions
+
+---
+
+## 7. ⚙️ Functional Requirements
+
+### 7.1 Student Management
+
+* Add new student records
+* Store student details (ID, name, email, etc.)
+
+### 7.2 Course Management
+
+* Create courses
+* Assign instructors to courses
+* Allow student enrollment
+
+### 7.3 Assignment Management
+
+* Create assignments for each course
+* Set deadlines and descriptions
+
+### 7.4 Submission System
+
+* Track assignment submissions
+* Link submissions to students and assignments
+
+### 7.5 Grading System
+
+* Record grades for submissions
+* Update grades when necessary
+
+### 7.6 Discussion Feature
+
+* Enable communication between students and instructors
+* Store messages related to assignments
+
+---
+
+## 8. 🗃️ Data Requirements (Entities)
+
+* **Student** (student_id, name, email)
+* **Instructor** (instructor_id, name, department)
+* **Course** (course_id, course_name, instructor_id)
+* **Enrollment** (student_id, course_id)
+* **Assignment** (assignment_id, course_id, title, deadline)
+* **Submission** (submission_id, assignment_id, student_id, submission_date)
+* **Grade** (grade_id, submission_id, marks, feedback)
+* **Discussion** (discussion_id, student_id, instructor_id, message, timestamp)
+
+---
+
+## 9. 🔗 System Constraints
+
+* Each student can enroll in multiple courses
+* Each course can have multiple assignments
+* Each submission is linked to one student and one assignment
+* Each submission has only one grade
+* Marks must be within a valid range (0–100)
+
+---
+
+## 10. ⚡ Non-Functional Requirements
+
+* **Performance:** Efficient SQL queries for fast data retrieval
+* **Consistency:** Data integrity using constraints (PK, FK)
+* **Scalability:** Ability to handle increasing records
+* **Usability:** Simple and intuitive interface
+* **Reliability:** Accurate storage and retrieval of academic data
+
+---
+
+## 11. 🛠️ Technology Stack
+
+### Frontend:
+
+* Basic GUI / Java Interface
+
+### Backend:
+
+* SQL-based database system
+
+### Database:
+
+* Relational Database Management System (RDBMS)
+
+### Tools:
+
+* SQL (DDL, DML, Queries)
+* PL/SQL (Procedures, Functions, Triggers)
+
+---
+
+## 12. 🔄 System Workflow
+
+1. Student registers in the system
+2. Student enrolls in a course
+3. Instructor creates assignments
+4. Student submits assignments
+5. Instructor evaluates submissions
+6. Grades and feedback are recorded
+7. Students view grades and participate in discussions
+
+---
+
+## 13. 🧪 Success Criteria
+
+* Successful creation of all database tables with constraints
+* Accurate execution of SQL queries (basic + complex)
+* Implementation of PL/SQL procedures/triggers
+* Proper linkage between entities
+* Functional UI with working features
+* Clean and structured report submission
+
+---
+
+## 14. 🚀 Future E
+nhancements
+
+* Authentication system (login/signup)
+* Real-time messaging/chat
+* File upload support for assignments
+* Mobile/web application integration
+* Notification system
+
+---
+
+## 15. 📌 Conclusion
+
+The Mini Course Management System provides a structured and efficient way to manage academic activities using relational database concepts. It demonstrates practical implementation of SQL, database design, and data management techniques in a real-world scenario.
+
+---

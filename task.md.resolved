@@ -1,0 +1,82 @@
+# Mini Course Management System - Project To-Do List
+
+Based on your PRD, Design, and Tech Stack documents, here is a simplified, systematic to-do list to complete your DBMS project effectively.
+
+## Phase 1: Database Setup & Schema Design (Backend Foundation)
+*Focus: Architect the backend logic and configure data models.*
+
+- [ ] **1.1 Environment Setup**
+  - [ ] Install Oracle SQL or MySQL locally.
+  - [ ] Install SQL Developer or MySQL Workbench.
+- [ ] **1.2 Draw the ER Diagram**
+  - [ ] Map out the 8 entities: `Student`, `Instructor`, `Course`, `Enrollment`, `Assignment`, `Submission`, `Grade`, `Discussion` using Draw.io or Lucidchart.
+- [ ] **1.3 Write DDL Scripts (Create Tables)**
+  - [ ] Write `CREATE TABLE` queries for all 8 entities.
+  - [ ] Set Primary Keys (PK) and Foreign Keys (FK) for relationships (e.g., student enlists in a course).
+  - [ ] Add `CHECK` constraints (e.g., grading scale must be 0-100).
+- [ ] **1.4 Implement PL/SQL Elements**
+  - [ ] **Stored Procedure:** To add a student to a course.
+  - [ ] **Function:** To calculate a student's average assignment grade.
+  - [ ] **Trigger:** To auto-create an empty `Grade` record when a `Submission` happens or validate missed deadlines.
+- [ ] **1.5 Insert Dummy Data (DML)**
+  - [ ] Write `INSERT` scripts to populate the tables with sample records (3-5 items each) for testing UI later.
+
+## Phase 2: Java Backend Connectivity (Middleware)
+*Focus: Connect the Java UI application to the database securely.*
+
+- [ ] **2.1 IDE Setup**
+  - [ ] Set up the UI project in IntelliJ, Eclipse, or NetBeans.
+  - [ ] Add the required JDBC driver (.jar) for MySQL/Oracle to your dependencies.
+- [ ] **2.2 Create DBConnection Utility**
+  - [ ] Write a reusable class (`DBConnection.java`) that establishes the database connection.
+- [ ] **2.3 Create Data Access Methods**
+  - [ ] Write basic SQL execution methods using JDBC (e.g., `executeSelect()`, `executeUpdate()`).
+  - [ ] Implement essential queries mapping to UI actions:
+    - [ ] `getAllCourses()` 
+    - [ ] `getStudentSubmissions(studentId)`
+    - [ ] `submitAssignment(studentId, assignmentId)`
+    - [ ] `saveGrade(submissionId, marks)`
+
+## Phase 3: UI/UX Layout & Development (Frontend)
+*Focus: Build out the 3-part layout screens in Java Swing/JavaFX based on the Design spec.*
+
+- [ ] **3.1 Main Dashboard & Global Layout**
+  - [ ] Build the main application frame container.
+  - [ ] Add the Top Navigation Bar (User Profile & Notifications).
+  - [ ] Add the Left Sidebar Navigation highlighting sections: Dashboard, Courses, Assignments, Submissions, Grades, Discussion.
+  - [ ] Apply the primary color (Blue), secondary color (Light Grey/White), and clean Sans-serif font styles.
+- [ ] **3.2 Implement Student Role Screens**
+  - [ ] **Dashboard:** Cards for Total Courses, Pending Assignments.
+  - [ ] **Courses View:** List of enrolled courses in card format (rounded corners).
+  - [ ] **Assignment List:** Deadlines timeline.
+  - [ ] **Submission Panel:** Form logic to submit an assignment.
+  - [ ] **Grades Page:** Data Table (`JTable`) for grades and feedback.
+- [ ] **3.3 Implement Instructor Role Screens**
+  - [ ] **Course Management:** Add new courses.
+  - [ ] **Assignment Management:** Create new assignments.
+  - [ ] **Grading Panel:** Data Table parsing student submissions and allowing grade input.
+- [ ] **3.4 Discussion Component**
+  - [ ] Build a simple threaded message viewer panel.
+
+## Phase 4: Integration & Full Testing
+*Focus: Wire the Java user interface to the JDBC methods and ensure everything works.*
+
+- [ ] **4.1 Wire Interface to Backend**
+  - [ ] Connect the "Submit Assignment" button to the `submitAssignment()` JDBC method.
+  - [ ] Load the "Courses Dashboard" grid data directly from a `SELECT` database call on page load.
+- [ ] **4.2 End-to-End Workflow Testing**
+  - [ ] **Flow 1 (Student):** Start at Dashboard ➔ Browse Courses ➔ Select Assignment ➔ Submit Assignment ➔ View Grades.
+  - [ ] **Flow 2 (Instructor):** Start at Dashboard ➔ Add Course ➔ Create Assignment ➔ Grade a Dummy Submission.
+  - [ ] Verify validation messages (e.g., missing fields error or invalid grade inputs).
+
+## Phase 5: Finalization & System Packaging
+*Focus: Output the required MS Word project submission.*
+
+- [ ] **5.1 Capture Outputs**
+  - [ ] Take screenshots of every Java GUI screen.
+  - [ ] Take screenshots of the database tables / query results.
+- [ ] **5.2 Compile Written Project Report**
+  - [ ] Add the formal PRD context to the report.
+  - [ ] Add the ER Diagram & System Workflows.
+  - [ ] Add the PL/SQL blocks and SQL code chunks.
+  - [ ] Attach all screenshots and the concluding summary.

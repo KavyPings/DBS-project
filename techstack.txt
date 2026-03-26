@@ -1,0 +1,215 @@
+# 🛠️ Technology Stack Document
+
+## Mini Course Management System
+
+---
+
+## 1. 📌 Overview
+
+This project uses a **simple and practical technology stack** suitable for a college-level database management system. The focus is on implementing core DBMS concepts such as relational schema design, SQL queries, and PL/SQL programming, rather than building a full-scale production application.
+
+---
+
+## 2. 🧱 Architecture Overview
+
+The system follows a **basic 2-tier architecture**:
+
+* **Frontend (UI Layer)** → Handles user interaction
+* **Backend (Database Layer)** → Stores and processes data
+
+Communication between frontend and database is handled using **JDBC (Java Database Connectivity)**.
+
+---
+
+## 3. 💻 Frontend Technologies
+
+### 🔹 Java (Swing / JavaFX)
+
+**Purpose:**
+
+* Create a simple Graphical User Interface (GUI)
+
+**Why chosen:**
+
+* Already familiar in curriculum
+* Easy to implement for small projects
+* No need for web development setup
+
+**Usage in Project:**
+
+* Forms for student registration
+* Course enrollment interface
+* Assignment submission screen
+* Grade viewing panel
+
+---
+
+## 4. 🗄️ Database Technologies
+
+### 🔹 Oracle SQL / MySQL
+
+**Purpose:**
+
+* Store all academic data in structured format
+
+**Why chosen:**
+
+* Core subject requirement (DBMS lab)
+* Supports SQL + PL/SQL features
+* Easy to run locally
+
+**Usage in Project:**
+
+* Creating tables (DDL)
+* Performing queries (DML)
+* Maintaining relationships (PK, FK)
+
+---
+
+### 🔹 SQL (Structured Query Language)
+
+**Purpose:**
+
+* Data manipulation and retrieval
+
+**Used for:**
+
+* INSERT, UPDATE, DELETE
+* SELECT queries
+* JOIN operations
+* GROUP BY, ORDER BY
+
+---
+
+### 🔹 PL/SQL
+
+**Purpose:**
+
+* Implement advanced database logic
+
+**Used for:**
+
+* Procedures (e.g., adding grades)
+* Functions (e.g., calculating averages)
+* Triggers (e.g., auto-update grade after submission)
+
+---
+
+## 5. 🔗 Backend Connectivity
+
+### 🔹 JDBC (Java Database Connectivity)
+
+**Purpose:**
+
+* Connect Java frontend with database
+
+**Why chosen:**
+
+* Standard Java library
+* Simple to implement
+* Works well for small projects
+
+**Usage in Project:**
+
+* Execute SQL queries from Java
+* Fetch and display data in UI
+
+---
+
+## 6. 🛠️ Development Tools
+
+### 🔹 IDE (Integrated Development Environment)
+
+Options:
+
+* IntelliJ IDEA / Eclipse / NetBeans
+
+**Purpose:**
+
+* Write and run Java code
+* Manage project structure
+
+---
+
+### 🔹 SQL Developer / MySQL Workbench
+
+**Purpose:**
+
+* Write and execute SQL queries
+* Design database schema
+* Test PL/SQL programs
+
+---
+
+### 🔹 Draw.io / Lucidchart
+
+**Purpose:**
+
+* Create ER diagrams
+
+---
+
+### 🔹 MS Word
+
+**Purpose:**
+
+* Prepare final project report
+
+---
+
+## 7. 📊 Optional Tools (For Better Presentation)
+
+### 🔹 Canva / PowerPoint
+
+* For UI mockups and presentation
+
+### 🔹 Figma (Optional)
+
+* For designing clean UI layouts
+
+---
+
+## 8. 🧪 Testing Approach
+
+* Manual testing using sample data
+* Verification of:
+
+  * Table relationships
+  * Query correctness
+  * UI interactions
+
+---
+
+## 9. ⚙️ System Requirements
+
+* Basic laptop/PC
+* Java installed (JDK 8 or above)
+* SQL environment (Oracle/MySQL)
+* IDE for development
+
+---
+
+## 10. 🚫 Why This Stack is Appropriate
+
+* Simple and easy to implement
+* Matches DBMS lab syllabus
+* Focuses on **database concepts rather than complex frameworks**
+* No need for internet hosting or deployment
+* Fully executable on a local system
+
+---
+
+## 11. 🔮 Future Enhancements (Optional)
+
+* Web-based frontend (HTML/CSS/JS)
+* Authentication system
+* Cloud database integration
+* REST API backend
+
+---
+
+## 12. 📌 Conclusion
+
+The chosen technology stack is minimal, efficient, and well-suited for implementing a database-driven academic system. It ensures that the project remains focused on core DBMS concepts while still providing a functional and interactive user interface.
+
+---
