@@ -28,7 +28,7 @@ A database-driven Java Swing application for managing academic activities — co
 ### 🔀 Profile Switching
 Switching between Student and Instructor views automatically updates the profile name in the top navigation bar:
 - **Student View** → `Kavy Khilrani | Student`
-- **Instructor View** → `Dr. Alan Turing | Instructor`
+- **Instructor View** → `Dr. Jashma Suresh | Instructor`
 
 ---
 
@@ -95,7 +95,7 @@ On first launch, the app automatically creates `course_management.db` (SQLite) i
 | Table | Sample Records |
 |---|---|
 | Student | Kavy Khilrani, Ruchi Pawar, Aarjica Talati |
-| Instructor | Dr. Alan Turing (CS), Dr. Grace Hopper (Maths) |
+| Instructor | Dr. Jashma Suresh (CS), Dr. Grace Hopper (Maths) |
 | Course | Intro to Databases, Data Structures, Linear Algebra, Operating Systems |
 | Assignment | 6 assignments across courses with deadlines |
 | Submission | 4 sample submissions with graded results |
@@ -123,3 +123,4 @@ Copy and paste the contents into **MySQL Workbench** or **Oracle SQL Developer**
 | v1.0 | Initial project setup — basic Java Swing UI, SQLite DB, student and instructor panels |
 | v1.1 | Added rich sample data (3 students, 4 courses, 6 assignments, grades); fixed button colours; renamed student profile to Kavy |
 | v1.2 | Full instructor functionality — Add Course, Add Assignment, Grade/Update submissions with row-click auto-fill; profile switches on view change; `.vscode/settings.json` added so app works from both `run.bat` and VS Code |
+| v1.3 | **Live table updates** — all tabs refresh from the DB the moment they are clicked (no restart needed); **Fixed invisible button text** on Windows (Metal LAF override); **Changed instructor name** to Dr. Jashma Suresh |

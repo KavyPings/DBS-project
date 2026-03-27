@@ -1,11 +1,24 @@
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
 import javax.swing.table.*;
 import java.awt.*;
 import java.sql.*;
 
 public class InstructorPanel extends JPanel {
 
-    private static final int INSTRUCTOR_ID = 1; // Dr. Alan Turing
+    private static final int INSTRUCTOR_ID = 1; // Dr. Jashma Suresh
+
+    // ── Instance-field models ────────────────────────────────────────────────
+    private final DefaultTableModel coursesModel;
+    private final DefaultTableModel assignmentsModel;
+    private final DefaultTableModel submissionsModel;
+
+    // Assignment-tab course dropdown (needs to stay up-to-date with new courses)
+    private JComboBox<String> cmbCourse;
+    private final java.util.LinkedHashMap<String, Integer> courseMap = new java.util.LinkedHashMap<>();
+
+    // Grading-tab fields (referenced in the row-click listener)
+    private JTextField txtSubId, txtMarks, txtFeedback;
 
     public InstructorPanel() {
         setLayout(new BorderLayout());
@@ -22,19 +35,41 @@ public class InstructorPanel extends JPanel {
         header.add(title, BorderLayout.WEST);
         add(header, BorderLayout.NORTH);
 
+        // ── Initialise models ───────────────────────────────────────────────
+        coursesModel     = makeModel("Course ID", "Course Name", "Enrolled Students");
+        assignmentsModel = makeModel("Assignment ID", "Title", "Course", "Deadline");
+        submissionsModel = makeModel("Sub ID", "Student", "Assignment", "Course", "Submitted On", "Grade", "Feedback");
+
         // ── Tabs ────────────────────────────────────────────────────────────
         JTabbedPane tabs = new JTabbedPane();
         tabs.setFont(MainDashboard.FONT_HEADER);
-        tabs.setBackground(MainDashboard.SECONDARY_GREY);
 
-        tabs.addTab("📋  Manage Courses",    createCoursesPanel());
-        tabs.addTab("✏️  Manage Assignments", createAssignmentsPanel());
-        tabs.addTab("📊  Grade Submissions",  createGradingPanel());
+        tabs.addTab("\uD83D\uDCCB  Manage Courses",    buildCoursesTab());
+        tabs.addTab("\u270F\uFE0F  Manage Assignments", buildAssignmentsTab());
+        tabs.addTab("\uD83D\uDCCA  Grade Submissions",  buildGradingTab());
+
+        // ── ChangeListener: refresh whichever tab is opened ─────────────────
+        tabs.addChangeListener((ChangeEvent e) -> {
+            switch (tabs.getSelectedIndex()) {
+                case 0 -> refreshCourses();
+                case 1 -> { refreshCourseDropdown(); refreshAssignments(); }
+                case 2 -> refreshSubmissions();
+            }
+        });
+
+        // Initial load for first tab
+        refreshCourses();
 
         add(tabs, BorderLayout.CENTER);
     }
 
-    // ── Shared Helpers ───────────────────────────────────────────────────────
+    // ── Helpers ──────────────────────────────────────────────────────────────
+
+    private DefaultTableModel makeModel(String... columns) {
+        return new DefaultTableModel(columns, 0) {
+            public boolean isCellEditable(int r, int c) { return false; }
+        };
+    }
 
     private void styleTable(JTable table) {
         table.setFont(MainDashboard.FONT_BODY);
@@ -51,14 +86,15 @@ public class InstructorPanel extends JPanel {
         th.setPreferredSize(new Dimension(0, 38));
     }
 
+    /** Styled button using BasicButtonUI to prevent Metal LAF from hiding text */
     private JButton makeBtn(String text, Color bg) {
         JButton btn = new JButton(text);
+        btn.setUI(new javax.swing.plaf.basic.BasicButtonUI());
         btn.setFont(new Font("SansSerif", Font.BOLD, 13));
         btn.setBackground(bg);
         btn.setForeground(Color.WHITE);
         btn.setFocusPainted(false);
         btn.setOpaque(true);
-        btn.setContentAreaFilled(true);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btn.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(bg.darker(), 1),
@@ -66,7 +102,6 @@ public class InstructorPanel extends JPanel {
         return btn;
     }
 
-    /** Show an error if connection is null */
     private boolean connOk(Connection conn) {
         if (conn == null) {
             JOptionPane.showMessageDialog(this,
@@ -77,45 +112,41 @@ public class InstructorPanel extends JPanel {
         return true;
     }
 
-    // ── Tab 1: Manage Courses ────────────────────────────────────────────────
-    private JPanel createCoursesPanel() {
+    // ══════════════════════════════════════════════════════════════════════════
+    // Tab 1: Manage Courses
+    // ══════════════════════════════════════════════════════════════════════════
+
+    private JPanel buildCoursesTab() {
         JPanel panel = new JPanel(new BorderLayout(10, 12));
         panel.setBackground(MainDashboard.SECONDARY_GREY);
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        String[] cols = {"Course ID", "Course Name", "Enrolled Students"};
-        DefaultTableModel model = new DefaultTableModel(cols, 0) {
-            public boolean isCellEditable(int r, int c) { return false; }
-        };
-        loadCourseData(model);
-        JTable table = new JTable(model);
+        JTable table = new JTable(coursesModel);
         styleTable(table);
         panel.add(new JScrollPane(table), BorderLayout.CENTER);
 
-        // ── Add Course Form Card ───────────────────────────────────────────
+        // ── Add Course Card ────────────────────────────────────────────────
         JPanel card = new JPanel(new BorderLayout());
         card.setBackground(MainDashboard.CARD_WHITE);
         card.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(MainDashboard.BORDER_COLOR),
             BorderFactory.createEmptyBorder(14, 20, 14, 20)));
 
-        JLabel cardTitle = new JLabel("➕  Add New Course");
+        JLabel cardTitle = new JLabel("\u2795  Add New Course");
         cardTitle.setFont(MainDashboard.FONT_HEADER);
         cardTitle.setForeground(MainDashboard.TEXT_DARK);
         card.add(cardTitle, BorderLayout.NORTH);
 
         JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 14, 10));
         row.setOpaque(false);
-
         row.add(new JLabel("Course Name:"));
-        JTextField txtName = new JTextField(24);
-        txtName.setFont(MainDashboard.FONT_BODY);
-        row.add(txtName);
+        JTextField txtCourseName = new JTextField(26);
+        txtCourseName.setFont(MainDashboard.FONT_BODY);
+        row.add(txtCourseName);
 
-        // Note: ID is auto-generated (MAX + 1) — no more manual ID entry
         JButton btnAdd = makeBtn("  Add Course", MainDashboard.PRIMARY_BLUE);
         btnAdd.addActionListener(e -> {
-            String name = txtName.getText().trim();
+            String name = txtCourseName.getText().trim();
             if (name.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Please enter a Course Name.", "Validation", JOptionPane.WARNING_MESSAGE);
                 return;
@@ -123,7 +154,6 @@ public class InstructorPanel extends JPanel {
             Connection conn = DBConnection.getConnection();
             if (!connOk(conn)) return;
             try {
-                // Auto-generate next course_id
                 Statement st = conn.createStatement();
                 ResultSet rs = st.executeQuery("SELECT COALESCE(MAX(course_id), 100) + 1 FROM Course");
                 int newId = rs.next() ? rs.getInt(1) : 200;
@@ -138,12 +168,11 @@ public class InstructorPanel extends JPanel {
                 pst.close();
                 conn.close();
 
-                txtName.setText("");
-                model.setRowCount(0);
-                loadCourseData(model);
+                txtCourseName.setText("");
+                refreshCourses();          // instant table update
                 JOptionPane.showMessageDialog(this,
                     "Course \"" + name + "\" added! (ID: " + newId + ")",
-                    "Done ✅", JOptionPane.INFORMATION_MESSAGE);
+                    "Done \u2705", JOptionPane.INFORMATION_MESSAGE);
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -154,7 +183,8 @@ public class InstructorPanel extends JPanel {
         return panel;
     }
 
-    private void loadCourseData(DefaultTableModel model) {
+    private void refreshCourses() {
+        coursesModel.setRowCount(0);
         Connection conn = DBConnection.getConnection();
         if (conn == null) return;
         try (Statement stmt = conn.createStatement()) {
@@ -164,34 +194,32 @@ public class InstructorPanel extends JPanel {
                 "WHERE C.instructor_id = " + INSTRUCTOR_ID +
                 " GROUP BY C.course_id, C.course_name ORDER BY C.course_id");
             while (rs.next())
-                model.addRow(new Object[]{rs.getInt(1), rs.getString(2), rs.getInt(3)});
+                coursesModel.addRow(new Object[]{rs.getInt(1), rs.getString(2), rs.getInt(3)});
             conn.close();
         } catch (Exception e) { e.printStackTrace(); }
     }
 
-    // ── Tab 2: Manage Assignments ────────────────────────────────────────────
-    private JPanel createAssignmentsPanel() {
+    // ══════════════════════════════════════════════════════════════════════════
+    // Tab 2: Manage Assignments
+    // ══════════════════════════════════════════════════════════════════════════
+
+    private JPanel buildAssignmentsTab() {
         JPanel panel = new JPanel(new BorderLayout(10, 12));
         panel.setBackground(MainDashboard.SECONDARY_GREY);
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        String[] cols = {"Assignment ID", "Title", "Course", "Deadline"};
-        DefaultTableModel model = new DefaultTableModel(cols, 0) {
-            public boolean isCellEditable(int r, int c) { return false; }
-        };
-        loadAssignmentData(model);
-        JTable table = new JTable(model);
+        JTable table = new JTable(assignmentsModel);
         styleTable(table);
         panel.add(new JScrollPane(table), BorderLayout.CENTER);
 
-        // ── Add Assignment Form Card ────────────────────────────────────────
+        // ── Add Assignment Card ────────────────────────────────────────────
         JPanel card = new JPanel(new BorderLayout());
         card.setBackground(MainDashboard.CARD_WHITE);
         card.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(MainDashboard.BORDER_COLOR),
             BorderFactory.createEmptyBorder(14, 20, 14, 20)));
 
-        JLabel cardTitle = new JLabel("➕  Create New Assignment");
+        JLabel cardTitle = new JLabel("\u2795  Create New Assignment");
         cardTitle.setFont(MainDashboard.FONT_HEADER);
         cardTitle.setForeground(MainDashboard.TEXT_DARK);
         card.add(cardTitle, BorderLayout.NORTH);
@@ -199,24 +227,10 @@ public class InstructorPanel extends JPanel {
         JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 10));
         row.setOpaque(false);
 
-        // Course dropdown (live from DB)
+        // Course dropdown
         row.add(new JLabel("Course:"));
-        JComboBox<String> cmbCourse = new JComboBox<>();
+        cmbCourse = new JComboBox<>();
         cmbCourse.setFont(MainDashboard.FONT_BODY);
-        java.util.LinkedHashMap<String, Integer> courseMap = new java.util.LinkedHashMap<>();
-        Connection conn0 = DBConnection.getConnection();
-        if (conn0 != null) {
-            try (Statement st = conn0.createStatement()) {
-                ResultSet rs = st.executeQuery(
-                    "SELECT course_id, course_name FROM Course WHERE instructor_id = " + INSTRUCTOR_ID + " ORDER BY course_id");
-                while (rs.next()) {
-                    String label = rs.getString(2) + " [" + rs.getInt(1) + "]";
-                    courseMap.put(label, rs.getInt(1));
-                    cmbCourse.addItem(label);
-                }
-                conn0.close();
-            } catch (Exception e) { e.printStackTrace(); }
-        }
         row.add(cmbCourse);
 
         row.add(new JLabel("  Title:"));
@@ -235,12 +249,17 @@ public class InstructorPanel extends JPanel {
             String title     = txtTitle.getText().trim();
             String deadline  = txtDeadline.getText().trim();
 
-            if (courseLbl == null || title.isEmpty() || deadline.isEmpty()) {
+            if (courseLbl == null || courseLbl.isEmpty() || title.isEmpty() || deadline.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "All fields are required.", "Validation", JOptionPane.WARNING_MESSAGE);
                 return;
             }
             if (!deadline.matches("\\d{4}-\\d{2}-\\d{2}")) {
-                JOptionPane.showMessageDialog(this, "Deadline must be in YYYY-MM-DD format (e.g. 2026-06-30).", "Validation", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this,
+                    "Deadline must be in YYYY-MM-DD format (e.g. 2026-06-30).", "Validation", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            if (!courseMap.containsKey(courseLbl)) {
+                JOptionPane.showMessageDialog(this, "Please select a valid course.", "Validation", JOptionPane.WARNING_MESSAGE);
                 return;
             }
             int courseId = courseMap.get(courseLbl);
@@ -258,22 +277,42 @@ public class InstructorPanel extends JPanel {
 
                 txtTitle.setText("");
                 txtDeadline.setText("");
-                model.setRowCount(0);
-                loadAssignmentData(model);
+                refreshAssignments();    // instant table update
                 JOptionPane.showMessageDialog(this,
-                    "Assignment \"" + title + "\" created!", "Done ✅", JOptionPane.INFORMATION_MESSAGE);
+                    "Assignment \"" + title + "\" created!", "Done \u2705", JOptionPane.INFORMATION_MESSAGE);
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
-        row.add(Box.createHorizontalStrut(8));
+
+        row.add(Box.createHorizontalStrut(6));
         row.add(btnAdd);
         card.add(row, BorderLayout.CENTER);
         panel.add(card, BorderLayout.SOUTH);
         return panel;
     }
 
-    private void loadAssignmentData(DefaultTableModel model) {
+    /** Reload the course dropdown — run every time the Assignments tab opens */
+    private void refreshCourseDropdown() {
+        courseMap.clear();
+        if (cmbCourse == null) return;
+        cmbCourse.removeAllItems();
+        Connection conn = DBConnection.getConnection();
+        if (conn == null) return;
+        try (Statement st = conn.createStatement()) {
+            ResultSet rs = st.executeQuery(
+                "SELECT course_id, course_name FROM Course WHERE instructor_id = " + INSTRUCTOR_ID + " ORDER BY course_id");
+            while (rs.next()) {
+                String label = rs.getString(2) + " [" + rs.getInt(1) + "]";
+                courseMap.put(label, rs.getInt(1));
+                cmbCourse.addItem(label);
+            }
+            conn.close();
+        } catch (Exception e) { e.printStackTrace(); }
+    }
+
+    private void refreshAssignments() {
+        assignmentsModel.setRowCount(0);
         Connection conn = DBConnection.getConnection();
         if (conn == null) return;
         try (Statement stmt = conn.createStatement()) {
@@ -282,25 +321,23 @@ public class InstructorPanel extends JPanel {
                 "FROM Assignment A JOIN Course C ON A.course_id = C.course_id " +
                 "WHERE C.instructor_id = " + INSTRUCTOR_ID + " ORDER BY A.deadline");
             while (rs.next())
-                model.addRow(new Object[]{rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4)});
+                assignmentsModel.addRow(new Object[]{rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4)});
             conn.close();
         } catch (Exception e) { e.printStackTrace(); }
     }
 
-    // ── Tab 3: Grade Submissions ─────────────────────────────────────────────
-    private JPanel createGradingPanel() {
+    // ══════════════════════════════════════════════════════════════════════════
+    // Tab 3: Grade Submissions
+    // ══════════════════════════════════════════════════════════════════════════
+
+    private JPanel buildGradingTab() {
         JPanel panel = new JPanel(new BorderLayout(10, 12));
         panel.setBackground(MainDashboard.SECONDARY_GREY);
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        String[] cols = {"Sub ID", "Student", "Assignment", "Course", "Submitted On", "Grade", "Feedback"};
-        DefaultTableModel model = new DefaultTableModel(cols, 0) {
-            public boolean isCellEditable(int r, int c) { return false; }
-        };
-        loadSubmissionData(model);
-        JTable table = new JTable(model);
+        JTable table = new JTable(submissionsModel);
         styleTable(table);
-        table.getColumnModel().getColumn(6).setPreferredWidth(200);
+        table.getColumnModel().getColumn(6).setPreferredWidth(220);
         panel.add(new JScrollPane(table), BorderLayout.CENTER);
 
         // ── Grading Card ───────────────────────────────────────────────────
@@ -310,7 +347,7 @@ public class InstructorPanel extends JPanel {
             BorderFactory.createLineBorder(MainDashboard.BORDER_COLOR),
             BorderFactory.createEmptyBorder(14, 20, 14, 20)));
 
-        JLabel cardTitle = new JLabel("🖊️  Enter / Update a Grade  (select a row or type Sub ID)");
+        JLabel cardTitle = new JLabel("\uD83D\uDD8A\uFE0F  Enter / Update a Grade  (click a row to auto-fill)");
         cardTitle.setFont(MainDashboard.FONT_HEADER);
         cardTitle.setForeground(MainDashboard.TEXT_DARK);
         card.add(cardTitle, BorderLayout.NORTH);
@@ -319,33 +356,33 @@ public class InstructorPanel extends JPanel {
         row.setOpaque(false);
 
         row.add(new JLabel("Submission ID:"));
-        JTextField txtSubId = new JTextField(6);
+        txtSubId = new JTextField(6);
         txtSubId.setFont(MainDashboard.FONT_BODY);
         row.add(txtSubId);
 
-        row.add(new JLabel("  Marks (0–100):"));
-        JTextField txtMarks = new JTextField(6);
+        row.add(new JLabel("  Marks (0\u2013100):"));
+        txtMarks = new JTextField(6);
         txtMarks.setFont(MainDashboard.FONT_BODY);
         row.add(txtMarks);
 
         row.add(new JLabel("  Feedback:"));
-        JTextField txtFeedback = new JTextField(24);
+        txtFeedback = new JTextField(26);
         txtFeedback.setFont(MainDashboard.FONT_BODY);
         row.add(txtFeedback);
 
-        // Auto-fill Sub ID when a row is clicked
+        // Row-click auto-fill
         table.getSelectionModel().addListSelectionListener(evt -> {
             if (!evt.getValueIsAdjusting() && table.getSelectedRow() >= 0) {
                 int r = table.getSelectedRow();
-                txtSubId.setText(model.getValueAt(r, 0).toString());
-                Object grade = model.getValueAt(r, 5);
+                txtSubId.setText(submissionsModel.getValueAt(r, 0).toString());
+                Object grade = submissionsModel.getValueAt(r, 5);
                 txtMarks.setText("Not Graded".equals(grade) ? "" : grade.toString());
-                Object fb = model.getValueAt(r, 6);
-                txtFeedback.setText("—".equals(fb) ? "" : fb.toString());
+                Object fb = submissionsModel.getValueAt(r, 6);
+                txtFeedback.setText("\u2014".equals(fb) ? "" : fb.toString());
             }
         });
 
-        JButton btnSave = makeBtn("  💾  Save Grade", new Color(39, 174, 96));
+        JButton btnSave = makeBtn("  \uD83D\uDCBE  Save Grade", new Color(39, 174, 96));
         btnSave.addActionListener(e -> {
             String subStr   = txtSubId.getText().trim();
             String markStr  = txtMarks.getText().trim();
@@ -371,38 +408,38 @@ public class InstructorPanel extends JPanel {
             Connection conn = DBConnection.getConnection();
             if (!connOk(conn)) return;
             try {
-                // Check if submission exists
-                PreparedStatement checkSub = conn.prepareStatement("SELECT 1 FROM Submission WHERE submission_id = ?");
-                checkSub.setInt(1, subId);
-                ResultSet rsSub = checkSub.executeQuery();
-                if (!rsSub.next()) {
+                // Validate submission exists
+                PreparedStatement chkSub = conn.prepareStatement("SELECT 1 FROM Submission WHERE submission_id = ?");
+                chkSub.setInt(1, subId);
+                if (!chkSub.executeQuery().next()) {
                     JOptionPane.showMessageDialog(this, "Submission ID " + subId + " does not exist.", "Not Found", JOptionPane.WARNING_MESSAGE);
                     conn.close(); return;
                 }
-                checkSub.close();
+                chkSub.close();
 
-                // Upsert grade
-                PreparedStatement checkGrade = conn.prepareStatement("SELECT grade_id FROM Grade WHERE submission_id = ?");
-                checkGrade.setInt(1, subId);
-                ResultSet rsGrade = checkGrade.executeQuery();
-                if (rsGrade.next()) {
-                    PreparedStatement upd = conn.prepareStatement("UPDATE Grade SET marks = ?, feedback = ? WHERE submission_id = ?");
+                // Upsert
+                PreparedStatement chkGrade = conn.prepareStatement("SELECT grade_id FROM Grade WHERE submission_id = ?");
+                chkGrade.setInt(1, subId);
+                ResultSet rsG = chkGrade.executeQuery();
+                if (rsG.next()) {
+                    PreparedStatement upd = conn.prepareStatement(
+                        "UPDATE Grade SET marks = ?, feedback = ? WHERE submission_id = ?");
                     upd.setInt(1, marks); upd.setString(2, feedback); upd.setInt(3, subId);
                     upd.executeUpdate(); upd.close();
-                    JOptionPane.showMessageDialog(this, "Grade updated to " + marks + "!", "Updated ✅", JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "Grade updated to " + marks + "!", "Updated \u2705", JOptionPane.INFORMATION_MESSAGE);
                 } else {
-                    PreparedStatement ins = conn.prepareStatement("INSERT INTO Grade (submission_id, marks, feedback) VALUES (?, ?, ?)");
+                    PreparedStatement ins = conn.prepareStatement(
+                        "INSERT INTO Grade (submission_id, marks, feedback) VALUES (?, ?, ?)");
                     ins.setInt(1, subId); ins.setInt(2, marks); ins.setString(3, feedback);
                     ins.executeUpdate(); ins.close();
-                    JOptionPane.showMessageDialog(this, "Grade of " + marks + " saved!", "Graded ✅", JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "Grade of " + marks + " saved!", "Graded \u2705", JOptionPane.INFORMATION_MESSAGE);
                 }
-                checkGrade.close();
+                chkGrade.close();
                 conn.close();
 
                 txtSubId.setText(""); txtMarks.setText(""); txtFeedback.setText("");
                 table.clearSelection();
-                model.setRowCount(0);
-                loadSubmissionData(model);
+                refreshSubmissions();   // instant table update
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -415,13 +452,14 @@ public class InstructorPanel extends JPanel {
         return panel;
     }
 
-    private void loadSubmissionData(DefaultTableModel model) {
+    private void refreshSubmissions() {
+        submissionsModel.setRowCount(0);
         Connection conn = DBConnection.getConnection();
         if (conn == null) return;
         try (Statement stmt = conn.createStatement()) {
             ResultSet rs = stmt.executeQuery(
                 "SELECT S.submission_id, ST.name, A.title, C.course_name, S.submission_date, " +
-                "  COALESCE(CAST(G.marks AS TEXT), 'Not Graded'), COALESCE(G.feedback, '—') " +
+                "  COALESCE(CAST(G.marks AS TEXT), 'Not Graded'), COALESCE(G.feedback, '\u2014') " +
                 "FROM Submission S " +
                 "JOIN Student ST   ON S.student_id    = ST.student_id " +
                 "JOIN Assignment A ON S.assignment_id = A.assignment_id " +
@@ -429,10 +467,9 @@ public class InstructorPanel extends JPanel {
                 "LEFT JOIN Grade G ON G.submission_id = S.submission_id " +
                 "WHERE C.instructor_id = " + INSTRUCTOR_ID + " ORDER BY S.submission_date DESC");
             while (rs.next())
-                model.addRow(new Object[]{
+                submissionsModel.addRow(new Object[]{
                     rs.getInt(1), rs.getString(2), rs.getString(3),
-                    rs.getString(4), rs.getString(5), rs.getString(6), rs.getString(7)
-                });
+                    rs.getString(4), rs.getString(5), rs.getString(6), rs.getString(7)});
             conn.close();
         } catch (Exception e) { e.printStackTrace(); }
     }

@@ -138,7 +138,7 @@ public class MainDashboard extends JFrame {
         if ("STUDENT".equals(viewKey)) {
             userLabel.setText("👤  Kavy Khilrani  |  Student");
         } else {
-            userLabel.setText("👨‍🏫  Dr. Alan Turing  |  Instructor");
+            userLabel.setText("👨‍🏫  Dr. Jashma Suresh  |  Instructor");
         }
     }
 
