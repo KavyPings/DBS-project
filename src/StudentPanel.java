@@ -70,6 +70,14 @@ public class StudentPanel extends JPanel {
         };
     }
 
+    /** Called by InstructorPanel after any DB mutation to keep student data in sync */
+    public void refreshAllModels() {
+        refreshCourses();
+        refreshAssignments();
+        refreshSubmitDropdown();
+        refreshGrades();
+    }
+
     // ── Styling helpers ──────────────────────────────────────────────────────
     private void styleTable(JTable table) {
         table.setFont(MainDashboard.FONT_BODY);
@@ -86,19 +94,40 @@ public class StudentPanel extends JPanel {
         th.setPreferredSize(new Dimension(0, 38));
     }
 
-    private JButton makeButton(String text, Color bg) {
-        JButton btn = new JButton(text);
-        // Use BasicButtonUI to bypass Metal LAF overrides
-        btn.setUI(new javax.swing.plaf.basic.BasicButtonUI());
-        btn.setFont(new Font("SansSerif", Font.BOLD, 13));
-        btn.setBackground(bg);
+    private JButton makeButton(String label, Color bg) {
+        JButton btn = new JButton(label) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(getModel().isPressed() ? bg.darker() : bg);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 8, 8);
+                g2.setFont(getFont());
+                g2.setColor(Color.WHITE);
+                FontMetrics fm = g2.getFontMetrics();
+                int tx = (getWidth()  - fm.stringWidth(getText())) / 2;
+                int ty = (getHeight() + fm.getAscent() - fm.getDescent()) / 2;
+                g2.drawString(getText(), tx, ty);
+                g2.dispose();
+            }
+            @Override
+            protected void paintBorder(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setColor(bg.darker());
+                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 8, 8);
+                g2.dispose();
+            }
+        };
+        btn.setFont(new Font("SansSerif", Font.BOLD, 14));
         btn.setForeground(Color.WHITE);
+        btn.setBackground(bg);
+        btn.setContentAreaFilled(false);
+        btn.setOpaque(false);
         btn.setFocusPainted(false);
-        btn.setOpaque(true);
+        btn.setBorderPainted(false);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btn.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(bg.darker(), 1),
-            BorderFactory.createEmptyBorder(8, 20, 8, 20)));
+        btn.setBorder(BorderFactory.createEmptyBorder(10, 24, 10, 24));
+        btn.setPreferredSize(new Dimension(200, 44));
         return btn;
     }
 

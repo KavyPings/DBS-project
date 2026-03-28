@@ -21,9 +21,9 @@ A database-driven Java Swing application for managing academic activities — co
 ### 👨‍🏫 Instructor View
 | Feature | Description |
 |---|---|
-| **Manage Courses** | View all your courses with enrolled student count; add new courses (ID auto-generated) |
-| **Manage Assignments** | View all assignments; create new ones by selecting course, entering title and deadline |
-| **Grade Submissions** | View all student submissions; click a row to auto-fill the grading form; save or update grades with feedback |
+| **Manage Courses** | View all your courses with enrolled student count; add new courses (ID auto-generated); **delete a selected course** (cascades to assignments, submissions, grades and enrollments) |
+| **Manage Assignments** | View all assignments; create new ones; **delete a selected assignment** (cascades to submissions and grades) |
+| **Grade Submissions** | View all student submissions; click a row to auto-fill the grading form; save or update grades with feedback; **remove a grade** (submission is kept, only the grade record is deleted) |
 
 ### 🔀 Profile Switching
 Switching between Student and Instructor views automatically updates the profile name in the top navigation bar:
@@ -124,3 +124,5 @@ Copy and paste the contents into **MySQL Workbench** or **Oracle SQL Developer**
 | v1.1 | Added rich sample data (3 students, 4 courses, 6 assignments, grades); fixed button colours; renamed student profile to Kavy |
 | v1.2 | Full instructor functionality — Add Course, Add Assignment, Grade/Update submissions with row-click auto-fill; profile switches on view change; `.vscode/settings.json` added so app works from both `run.bat` and VS Code |
 | v1.3 | **Live table updates** — all tabs refresh from the DB the moment they are clicked (no restart needed); **Fixed invisible button text** on Windows (Metal LAF override); **Changed instructor name** to Dr. Jashma Suresh |
+| v1.4 | **Grading instant update** — table refreshes and repaints *before* the success dialog appears so data is visible immediately; **Buttons fully fixed** — replaced LAF-dependent rendering with fully custom `paintComponent` so button label and colour are always correctly drawn regardless of JDK version; buttons also made larger (180–200 × 44 px) |
+| v1.5 | **Delete functionality** — instructors can now delete courses (full cascade), delete assignments (cascade to submissions/grades), and remove grades (keeps the submission, just clears the grade); **cross-panel instant sync** — every instructor add/delete/grade action immediately updates all student-view tables |

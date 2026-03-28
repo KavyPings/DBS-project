@@ -7,7 +7,7 @@ public class MainDashboard extends JFrame {
     private JPanel mainContainer;
     private CardLayout cardLayout;
     private JLabel userLabel;
-    private String currentView = "STUDENT";
+
 
     // ── Design Tokens (from design.txt) ──────────────────────────────────────
     public static final Color PRIMARY_BLUE    = new Color(41, 128, 185);
@@ -47,7 +47,7 @@ public class MainDashboard extends JFrame {
         mainContainer.setBackground(SECONDARY_GREY);
 
         studentPanel    = new StudentPanel();
-        instructorPanel = new InstructorPanel();
+        instructorPanel = new InstructorPanel(studentPanel);  // pass ref for cross-panel refresh
         mainContainer.add(studentPanel,    "STUDENT");
         mainContainer.add(instructorPanel, "INSTRUCTOR");
         cardLayout.show(mainContainer, "STUDENT");
@@ -133,7 +133,6 @@ public class MainDashboard extends JFrame {
 
     // ── View Switching (updates profile label too) ───────────────────────────
     private void switchView(String viewKey) {
-        currentView = viewKey;
         cardLayout.show(mainContainer, viewKey);
         if ("STUDENT".equals(viewKey)) {
             userLabel.setText("👤  Kavy Khilrani  |  Student");
