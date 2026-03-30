@@ -127,7 +127,6 @@ public class InstructorPanel extends JPanel {
         btn.setBorderPainted(false);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btn.setBorder(BorderFactory.createEmptyBorder(10, 22, 10, 22));
-        btn.setPreferredSize(new Dimension(190, 44));
         return btn;
     }
 
@@ -319,26 +318,26 @@ public class InstructorPanel extends JPanel {
             BorderFactory.createLineBorder(MainDashboard.BORDER_COLOR),
             BorderFactory.createEmptyBorder(14, 20, 14, 20)));
 
-        // Add row
-        JPanel addRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 6));
+        // ── Create row (fields on one line, button at right) ───────────────
+        JPanel addRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 8));
         addRow.setOpaque(false);
         JLabel addTitle = new JLabel("\u2795  Create New Assignment");
         addTitle.setFont(MainDashboard.FONT_HEADER);
         addTitle.setForeground(MainDashboard.TEXT_DARK);
         addRow.add(addTitle);
-        addRow.add(Box.createHorizontalStrut(6));
+        addRow.add(Box.createHorizontalStrut(8));
 
         addRow.add(new JLabel("Course:"));
         cmbCourse = new JComboBox<>();
         cmbCourse.setFont(MainDashboard.FONT_BODY);
         addRow.add(cmbCourse);
 
-        addRow.add(new JLabel("  Title:"));
-        JTextField txtTitle = new JTextField(18);
+        addRow.add(new JLabel("Title:"));
+        JTextField txtTitle = new JTextField(16);
         txtTitle.setFont(MainDashboard.FONT_BODY);
         addRow.add(txtTitle);
 
-        addRow.add(new JLabel("  Deadline (YYYY-MM-DD):"));
+        addRow.add(new JLabel("Deadline (YYYY-MM-DD):"));
         JTextField txtDeadline = new JTextField(10);
         txtDeadline.setFont(MainDashboard.FONT_BODY);
         addRow.add(txtDeadline);
@@ -377,11 +376,11 @@ public class InstructorPanel extends JPanel {
                 JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
-        addRow.add(Box.createHorizontalStrut(6));
+        addRow.add(Box.createHorizontalStrut(4));
         addRow.add(btnAdd);
 
-        // Delete row
-        JPanel delRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 6));
+        // ── Delete row ──────────────────────────────────────────────────────
+        JPanel delRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 8));
         delRow.setOpaque(false);
         JLabel delTitle = new JLabel("\uD83D\uDDD1\uFE0F  Delete Assignment");
         delTitle.setFont(MainDashboard.FONT_HEADER);
@@ -494,27 +493,27 @@ public class InstructorPanel extends JPanel {
             BorderFactory.createLineBorder(MainDashboard.BORDER_COLOR),
             BorderFactory.createEmptyBorder(14, 20, 14, 20)));
 
-        // Grade entry row
-        JPanel gradeRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 6));
+        // ── Grade entry row (fields + save button on one line) ─────────────
+        JPanel gradeRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 8));
         gradeRow.setOpaque(false);
         JLabel gradeTitle = new JLabel("\uD83D\uDD8A\uFE0F  Enter / Update Grade  (click a row to auto-fill)");
         gradeTitle.setFont(MainDashboard.FONT_HEADER);
         gradeTitle.setForeground(MainDashboard.TEXT_DARK);
         gradeRow.add(gradeTitle);
-        gradeRow.add(Box.createHorizontalStrut(6));
+        gradeRow.add(Box.createHorizontalStrut(8));
 
         gradeRow.add(new JLabel("Sub ID:"));
         txtSubId = new JTextField(5);
         txtSubId.setFont(MainDashboard.FONT_BODY);
         gradeRow.add(txtSubId);
 
-        gradeRow.add(new JLabel("  Marks (0\u2013100):"));
+        gradeRow.add(new JLabel("Marks (0\u2013100):"));
         txtMarks = new JTextField(5);
         txtMarks.setFont(MainDashboard.FONT_BODY);
         gradeRow.add(txtMarks);
 
-        gradeRow.add(new JLabel("  Feedback:"));
-        txtFeedback = new JTextField(22);
+        gradeRow.add(new JLabel("Feedback:"));
+        txtFeedback = new JTextField(20);
         txtFeedback.setFont(MainDashboard.FONT_BODY);
         gradeRow.add(txtFeedback);
 
@@ -578,7 +577,7 @@ public class InstructorPanel extends JPanel {
                 JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
-        gradeRow.add(Box.createHorizontalStrut(6));
+        gradeRow.add(Box.createHorizontalStrut(4));
         gradeRow.add(btnSave);
 
         // Row-click auto-fill
@@ -593,8 +592,8 @@ public class InstructorPanel extends JPanel {
             }
         });
 
-        // Remove grade row
-        JPanel delRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 6));
+        // ── Remove grade row ────────────────────────────────────────────────
+        JPanel delRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 8));
         delRow.setOpaque(false);
         JLabel delTitle = new JLabel("\uD83D\uDDD1\uFE0F  Remove Grade");
         delTitle.setFont(MainDashboard.FONT_HEADER);
