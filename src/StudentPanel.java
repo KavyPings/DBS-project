@@ -17,6 +17,13 @@ public class StudentPanel extends JPanel {
     private JComboBox<String> submitDropdown;
     private final java.util.LinkedHashMap<String, Integer> submitMap = new java.util.LinkedHashMap<>();
 
+    // Enroll-in-course state (available courses not yet enrolled)
+    private JComboBox<String> enrollDropdown;
+    private final java.util.LinkedHashMap<String, Integer> enrollMap = new java.util.LinkedHashMap<>();
+
+    // Cross-panel sync — wired by MainDashboard after both panels are constructed
+    private InstructorPanel instructorPanel;
+
     public StudentPanel() {
         setLayout(new BorderLayout());
         setBackground(MainDashboard.SECONDARY_GREY);
@@ -72,11 +79,14 @@ public class StudentPanel extends JPanel {
 
     /** Called by InstructorPanel after any DB mutation to keep student data in sync */
     public void refreshAllModels() {
-        refreshCourses();
+        refreshCourses();           // also rebuilds the enroll dropdown
         refreshAssignments();
         refreshSubmitDropdown();
         refreshGrades();
     }
+
+    /** Wired by MainDashboard once both panels are constructed */
+    public void setInstructorPanel(InstructorPanel ip) { this.instructorPanel = ip; }
 
     // ── Styling helpers ──────────────────────────────────────────────────────
     private void styleTable(JTable table) {
@@ -145,10 +155,68 @@ public class StudentPanel extends JPanel {
         styleTable(table);
         panel.add(new JScrollPane(table), BorderLayout.CENTER);
 
-        JLabel info = new JLabel("  Showing all courses you are enrolled in.");
-        info.setFont(MainDashboard.FONT_SMALL);
-        info.setForeground(Color.GRAY);
-        panel.add(info, BorderLayout.SOUTH);
+        // ── Enroll in a new course card ────────────────────────────────────
+        JPanel card = new JPanel(new BorderLayout());
+        card.setBackground(MainDashboard.CARD_WHITE);
+        card.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(MainDashboard.BORDER_COLOR),
+            BorderFactory.createEmptyBorder(14, 20, 14, 20)));
+
+        JPanel enrollRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 8));
+        enrollRow.setOpaque(false);
+
+        JLabel enrollTitle = new JLabel("\uD83D\uDCDA  Enroll in a New Course");
+        enrollTitle.setFont(MainDashboard.FONT_HEADER);
+        enrollTitle.setForeground(MainDashboard.TEXT_DARK);
+        enrollRow.add(enrollTitle);
+        enrollRow.add(Box.createHorizontalStrut(12));
+
+        enrollDropdown = new JComboBox<>();
+        enrollDropdown.setFont(MainDashboard.FONT_BODY);
+        enrollDropdown.setPreferredSize(new Dimension(400, 32));
+        enrollRow.add(enrollDropdown);
+        enrollRow.add(Box.createHorizontalStrut(10));
+
+        JButton btnEnroll = makeButton("  \u2795  Enroll Now", MainDashboard.ACCENT_GREEN);
+        btnEnroll.addActionListener(e -> {
+            String selected = (String) enrollDropdown.getSelectedItem();
+            if (selected == null || !enrollMap.containsKey(selected)) {
+                JOptionPane.showMessageDialog(this,
+                    "Please select an available course to enroll in.",
+                    "No Selection", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            int courseId = enrollMap.get(selected);
+            Connection conn = DBConnection.getConnection();
+            if (conn == null) return;
+            try {
+                PreparedStatement pst = conn.prepareStatement(
+                    "INSERT INTO Enrollment (student_id, course_id) VALUES (?, ?)");
+                pst.setInt(1, STUDENT_ID);
+                pst.setInt(2, courseId);
+                pst.executeUpdate();
+                pst.close();
+                conn.close();
+
+                JOptionPane.showMessageDialog(this,
+                    "Successfully enrolled in: " + selected.split(" \u2014 ")[0],
+                    "Enrolled \u2705", JOptionPane.INFORMATION_MESSAGE);
+
+                // Refresh all student views immediately
+                refreshAllModels();
+
+                // Also refresh the instructor-side tables so new
+                // enrollment/submissions appear in Grade Submissions
+                if (instructorPanel != null) instructorPanel.refreshInstructorViews();
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this,
+                    "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        enrollRow.add(btnEnroll);
+        card.add(enrollRow, BorderLayout.CENTER);
+        panel.add(card, BorderLayout.SOUTH);
         return panel;
     }
 
@@ -162,12 +230,41 @@ public class StudentPanel extends JPanel {
                 "FROM Course C " +
                 "JOIN Enrollment E ON C.course_id     = E.course_id " +
                 "JOIN Instructor I ON C.instructor_id = I.instructor_id " +
-                "WHERE E.student_id = " + STUDENT_ID);
+                "WHERE E.student_id = " + STUDENT_ID + " ORDER BY C.course_name");
             while (rs.next())
                 coursesModel.addRow(new Object[]{
                     rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4)});
             conn.close();
         } catch (Exception e) { e.printStackTrace(); }
+        refreshEnrollDropdown();
+    }
+
+    /** Repopulates the enroll dropdown with courses the student is NOT yet enrolled in */
+    private void refreshEnrollDropdown() {
+        if (enrollDropdown == null) return;
+        enrollMap.clear();
+        enrollDropdown.removeAllItems();
+        Connection conn = DBConnection.getConnection();
+        if (conn == null) return;
+        try (Statement stmt = conn.createStatement()) {
+            ResultSet rs = stmt.executeQuery(
+                "SELECT C.course_id, C.course_name, I.name, I.department " +
+                "FROM Course C " +
+                "JOIN Instructor I ON C.instructor_id = I.instructor_id " +
+                "WHERE C.course_id NOT IN (" +
+                "  SELECT course_id FROM Enrollment WHERE student_id = " + STUDENT_ID + ") " +
+                "ORDER BY C.course_name");
+            while (rs.next()) {
+                String lbl = rs.getString(2)
+                    + " \u2014 " + rs.getString(3)
+                    + " (" + rs.getString(4) + ")";
+                enrollMap.put(lbl, rs.getInt(1));
+                enrollDropdown.addItem(lbl);
+            }
+            conn.close();
+        } catch (Exception e) { e.printStackTrace(); }
+        if (enrollDropdown.getItemCount() == 0)
+            enrollDropdown.addItem("All available courses already enrolled \uD83C\uDF89");
     }
 
     // ── Tab 2: Assignments ───────────────────────────────────────────────────

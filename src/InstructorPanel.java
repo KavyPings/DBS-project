@@ -149,6 +149,17 @@ public class InstructorPanel extends JPanel {
         studentPanel.refreshAllModels();
     }
 
+    /**
+     * Refreshes only the instructor-side tables.
+     * Called from StudentPanel (enroll action) to avoid a recursive refresh loop.
+     */
+    public void refreshInstructorViews() {
+        refreshCourses();
+        refreshCourseDropdown();
+        refreshAssignments();
+        refreshSubmissions();
+    }
+
     // ══════════════════════════════════════════════════════════════════════════
     // Tab 1 — Manage Courses
     // ══════════════════════════════════════════════════════════════════════════
@@ -318,8 +329,8 @@ public class InstructorPanel extends JPanel {
             BorderFactory.createLineBorder(MainDashboard.BORDER_COLOR),
             BorderFactory.createEmptyBorder(14, 20, 14, 20)));
 
-        // ── Create row (fields on one line, button at right) ───────────────
-        JPanel addRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 8));
+        // ── Create row: fields only (no button here) ──────────────────────
+        JPanel addRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 6));
         addRow.setOpaque(false);
         JLabel addTitle = new JLabel("\u2795  Create New Assignment");
         addTitle.setFont(MainDashboard.FONT_HEADER);
@@ -342,7 +353,10 @@ public class InstructorPanel extends JPanel {
         txtDeadline.setFont(MainDashboard.FONT_BODY);
         addRow.add(txtDeadline);
 
-        JButton btnAdd = makeBtn("Add Assignment", MainDashboard.ACCENT_GREEN);
+        // ── Green button on its own row (always visible) ───────────────────
+        JPanel addBtnRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 4));
+        addBtnRow.setOpaque(false);
+        JButton btnAdd = makeBtn("\u2705  Add Assignment", MainDashboard.ACCENT_GREEN);
         btnAdd.addActionListener(e -> {
             String courseLbl = (String) cmbCourse.getSelectedItem();
             String title     = txtTitle.getText().trim();
@@ -376,8 +390,7 @@ public class InstructorPanel extends JPanel {
                 JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
-        addRow.add(Box.createHorizontalStrut(4));
-        addRow.add(btnAdd);
+        addBtnRow.add(btnAdd);
 
         // ── Delete row ──────────────────────────────────────────────────────
         JPanel delRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 8));
@@ -432,6 +445,7 @@ public class InstructorPanel extends JPanel {
         rows.setLayout(new BoxLayout(rows, BoxLayout.Y_AXIS));
         rows.setOpaque(false);
         rows.add(addRow);
+        rows.add(addBtnRow);
         rows.add(new JSeparator());
         rows.add(delRow);
         card.add(rows, BorderLayout.CENTER);
@@ -493,8 +507,8 @@ public class InstructorPanel extends JPanel {
             BorderFactory.createLineBorder(MainDashboard.BORDER_COLOR),
             BorderFactory.createEmptyBorder(14, 20, 14, 20)));
 
-        // ── Grade entry row (fields + save button on one line) ─────────────
-        JPanel gradeRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 8));
+        // ── Grade entry: fields row (no button here) ───────────────────────
+        JPanel gradeRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 6));
         gradeRow.setOpaque(false);
         JLabel gradeTitle = new JLabel("\uD83D\uDD8A\uFE0F  Enter / Update Grade  (click a row to auto-fill)");
         gradeTitle.setFont(MainDashboard.FONT_HEADER);
@@ -517,6 +531,9 @@ public class InstructorPanel extends JPanel {
         txtFeedback.setFont(MainDashboard.FONT_BODY);
         gradeRow.add(txtFeedback);
 
+        // ── Green Save button on its own row (always visible) ──────────────
+        JPanel saveBtnRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 4));
+        saveBtnRow.setOpaque(false);
         JButton btnSave = makeBtn("\uD83D\uDCBE  Save Grade", new Color(39, 174, 96));
         btnSave.addActionListener(e -> {
             String subStr = txtSubId.getText().trim(), markStr = txtMarks.getText().trim();
@@ -577,8 +594,12 @@ public class InstructorPanel extends JPanel {
                 JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
-        gradeRow.add(Box.createHorizontalStrut(4));
-        gradeRow.add(btnSave);
+        saveBtnRow.add(btnSave);
+        saveBtnRow.add(Box.createHorizontalStrut(8));
+        JLabel saveHint = new JLabel("\u2190 Fill fields above, then click to save");
+        saveHint.setFont(MainDashboard.FONT_SMALL);
+        saveHint.setForeground(Color.GRAY);
+        saveBtnRow.add(saveHint);
 
         // Row-click auto-fill
         submissionsTable.getSelectionModel().addListSelectionListener(evt -> {
@@ -648,6 +669,7 @@ public class InstructorPanel extends JPanel {
         rows.setLayout(new BoxLayout(rows, BoxLayout.Y_AXIS));
         rows.setOpaque(false);
         rows.add(gradeRow);
+        rows.add(saveBtnRow);
         rows.add(new JSeparator());
         rows.add(delRow);
         card.add(rows, BorderLayout.CENTER);

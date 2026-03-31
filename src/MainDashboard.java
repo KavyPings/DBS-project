@@ -48,6 +48,7 @@ public class MainDashboard extends JFrame {
 
         studentPanel    = new StudentPanel();
         instructorPanel = new InstructorPanel(studentPanel);  // pass ref for cross-panel refresh
+        studentPanel.setInstructorPanel(instructorPanel);     // back-ref for enroll cross-sync
         mainContainer.add(studentPanel,    "STUDENT");
         mainContainer.add(instructorPanel, "INSTRUCTOR");
         cardLayout.show(mainContainer, "STUDENT");
